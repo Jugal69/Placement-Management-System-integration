@@ -3,6 +3,10 @@ package org.crce.interns.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.crce.interns.beans.FacultyBean;
 import org.crce.interns.beans.StudentBean;
 import org.crce.interns.model.Student;
@@ -37,33 +41,61 @@ public class ManageUserController {
 	
 	//actually adding student
 	@RequestMapping(value = "/registerStudent", method = RequestMethod.POST)
-	public ModelAndView addStudent(@ModelAttribute("studentBean")StudentBean studentBean,BindingResult result) {
-		manageUserService.addStudent(studentBean);
-		return new ModelAndView("addStudent");
+	public ModelAndView addStudent(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("studentBean")StudentBean studentBean,BindingResult result) {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+		{
+			manageUserService.addStudent(studentBean);
+			return new ModelAndView("addStudent");
+		}
 	}
 	
 	//actually adding faculty
 	@RequestMapping(value = "/registerFaculty", method = RequestMethod.POST)
-	public ModelAndView addFaculty(@ModelAttribute("facultyBean")FacultyBean facultyBean,BindingResult result) {
-		manageUserService.addFaculty(facultyBean);
-		return new ModelAndView("addFaculty");
+	public ModelAndView addFaculty(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("facultyBean")FacultyBean facultyBean,BindingResult result) {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+		{
+			manageUserService.addFaculty(facultyBean);
+			return new ModelAndView("addFaculty");
+		}
 	}
 	
 	@RequestMapping(value = "/addstudent", method = RequestMethod.GET)
-	public ModelAndView welcomeStudent(Model model) {
+	public ModelAndView welcomeStudent(HttpServletRequest request, HttpServletResponse response,Model model) {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+		{
 		 StudentBean studentBean = new StudentBean(); // declaring
 
          model.addAttribute("studentBean", studentBean); // adding in model
 
 		return new ModelAndView("addStudent");
+		}
 	}
 	
 	@RequestMapping(value = "/addfaculty", method = RequestMethod.GET)
-	public ModelAndView welcomeFaculty(Model model) {
+	public ModelAndView welcomeFaculty(HttpServletRequest request, HttpServletResponse response,Model model) {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+		{
 		 FacultyBean facultyBean = new FacultyBean(); // declaring
 
          model.addAttribute("facultyBean", facultyBean); // adding in model
 		return new ModelAndView("addFaculty");
+		}
 	}
 	
 	
@@ -74,16 +106,28 @@ public class ManageUserController {
 	
 	
 	@RequestMapping(value = "/removeuser", method = RequestMethod.GET)
-	public ModelAndView removeUser() {
-		return new ModelAndView("removeUser");		
+	public ModelAndView removeUser(HttpServletRequest request, HttpServletResponse response) {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+			return new ModelAndView("removeUser");		
 	}
 	
 	//actually removing user
 	@RequestMapping(value = "/removeUser", method = RequestMethod.POST)
-	public ModelAndView removeUser1(@ModelAttribute("command")  StudentBean studentBean,
+	public ModelAndView removeUser1(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("command")  StudentBean studentBean,
 			BindingResult result, @RequestParam("username")String username) {
-		manageUserService.removeUser(studentBean, username);
-		return new ModelAndView("removeUser");
+		HttpSession session=request.getSession();
+		String role =  request.getParameter("roleId");
+		if(!(role.equals("6")||role.equals("5")))
+			return new ModelAndView("403");
+		else
+		{
+			manageUserService.removeUser(studentBean, username);
+			return new ModelAndView("removeUser");
+		}
 	}
 
 }

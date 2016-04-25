@@ -21,6 +21,7 @@ public class SearchController {
 	
 	@RequestMapping(value = "/searchHome", method = RequestMethod.GET) 
 	public ModelAndView welcomeSearch() {
+		
 		System.out.println("searchBar");
 		return new ModelAndView("searchbar");
 	}

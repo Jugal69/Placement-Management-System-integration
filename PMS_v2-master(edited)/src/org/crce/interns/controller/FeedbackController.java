@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,30 +52,42 @@ public class FeedbackController {
 		return new ModelAndView("feedbackList", model);
 	}
 	@RequestMapping(value = "/addFeedback", method = RequestMethod.GET)
-	public ModelAndView saveEmployee(@ModelAttribute("command") FeedbackBean feedbackBean, 
+	public ModelAndView saveEmployee(HttpServletRequest request,@ModelAttribute("command") FeedbackBean feedbackBean, 
 			BindingResult result) {
 		System.out.println("in controller1");
 		//Feedback feedback = prepareModel(feedbackBean);
 		//feedbackService.addFeedback(feedback);
 		//System.out.println("in controller1");
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("4")||role.equals("5")||role.equals("1")||role.equals("2")||role.equals("3")))
+			return new ModelAndView("403");
+		else
 		return new ModelAndView("addFeedback");
 	}
 
 	@RequestMapping(value = "/save", method = RequestMethod.POST)  
-	 public ModelAndView addEmployee(  @ModelAttribute("command")FeedbackBean feedbackBean,  
+	 public ModelAndView addEmployee( HttpServletRequest request, @ModelAttribute("command")FeedbackBean feedbackBean,  
 	   BindingResult result) { 
 		//validating
-		validator.validate(feedbackBean, result);
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("4")||role.equals("5")||role.equals("1")||role.equals("2")||role.equals("3")))
+			return new ModelAndView("403");
+		else
+		{
+			validator.validate(feedbackBean, result);
 				if (result.hasErrors()) {
 			System.out.println("Error in form");
             
             return new ModelAndView("addFeedback");
-        }
+				}
 				Feedback feedback = prepareModel(feedbackBean);
 				feedbackService.addFeedback(feedback);
-	  Map<String, Object> model = new HashMap<String, Object>();  
-	 model.put("feedback",  prepareList(feedbackService.listFeedback(),feedbackBean.getCompany()));  
-	  return new ModelAndView("feedbackSaveSuccess",model);  
+				Map<String, Object> model = new HashMap<String, Object>();  
+				model.put("feedback",  prepareList(feedbackService.listFeedback(),feedbackBean.getCompany()));  
+				return new ModelAndView("feedbackSaveSuccess",model);  
+		}
 	 }  
 	
 	

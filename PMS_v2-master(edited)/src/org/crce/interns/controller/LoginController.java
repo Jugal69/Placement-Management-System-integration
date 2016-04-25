@@ -32,7 +32,6 @@ public class LoginController extends HttpServlet{
 	@Autowired
 	public LoginService loginService;
 	
-	
 	@RequestMapping("/")
 	public ModelAndView welcome() {
 		System.out.println("return model");
@@ -139,6 +138,19 @@ public class LoginController extends HttpServlet{
 		    System.out.println("Logged in as what????: " + name);
 			return model;
 		}
+		else if(role.equals("Faculty"))
+		{
+			model = new ModelAndView("Faculty");
+			HttpSession session=request.getSession();
+			String name =  request.getParameter("userName");
+		    System.out.println("UserName: " + name); // Here it prints the username properly
+		    request.getSession(true).setAttribute("userName", name );
+		    request.getSession(true).setAttribute("roleId", "5" );
+		 
+		    
+		    System.out.println("Logged in as what????: " + name);
+			return model;
+		}
 		else{
 			result.rejectValue("userName","invaliduser");
 			model = new ModelAndView("loginform");
@@ -147,20 +159,29 @@ public class LoginController extends HttpServlet{
 	}
 	
 	@RequestMapping(value="/notify" ,method = RequestMethod.POST)
-	public String notifyForm(@Valid NotifyForm notify, BindingResult result,
+	public ModelAndView notifyForm(HttpServletRequest request, HttpServletResponse response,@Valid NotifyForm notify, BindingResult result,
 			Map model) 
 	{
-		String userName=notify.getUserName();
-		int update=loginService.getStudentByid(userName);
-		//System.out.println("hello");
-		if(update==0)
-		{
-			model.put("notify",notify);
-			return "FacultyTPC";
-		}
+		HttpSession session=request.getSession();
+		String role=  (String)session.getAttribute("roleId");
+		String user=(String)session.getAttribute("userName");
+		String name=loginService.checkSR(user);
+		System.out.println("Role"+role);
+		if(!(role.equals("4")&&name.equals("702")))
+			return new ModelAndView("403");
 		else
-			return "success";
+		{
+			String userName=notify.getUserName();
+			int update=loginService.getStudentByid(userName);
+			System.out.println("Role"+role);
+			if(update==0)
+			{
+				model.put("notify",notify);
+				return new ModelAndView("FacultyTPC");
+			}
+			else
+				return new ModelAndView("success");
+		}
 	}
-	
 
 }

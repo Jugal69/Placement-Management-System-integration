@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.crce.interns.service.SendEmailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +69,17 @@ public class SendEmailController {
 	@RequestMapping(value = "/SubmitEmail", method = RequestMethod.POST)
 	public ModelAndView sendEmail(HttpServletRequest request,
 			@RequestParam(value = "fileUpload") CommonsMultipartFile[] file) throws IllegalStateException, IOException {
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("4")||role.equals("5")||role.equals("6")))
+			return new ModelAndView("403");
+		else
+		{	
+			ModelAndView model = new ModelAndView();
+			model = sendEmailService.sendMail(request, file);
 		
-		ModelAndView model = new ModelAndView();
-		model = sendEmailService.sendMail(request, file);
-		
-		return model;
+			return model;
+		}
 	}
 
 	/*
@@ -80,9 +87,14 @@ public class SendEmailController {
         Function: Displays The Compose an e-mail page
 	*/
 	@RequestMapping(method=RequestMethod.GET, value="/sendMail")
-	public ModelAndView email_welcome() {
+	public ModelAndView email_welcome(HttpServletRequest request) {
 		System.out.println("Mapped to /sendMail");
-		return new ModelAndView("EmailForm");
+		HttpSession session=request.getSession();
+		String role =  (String)session.getAttribute("roleId");
+		if(!(role.equals("4")||role.equals("5")||role.equals("6")))
+			return new ModelAndView("403");
+		else
+			return new ModelAndView("EmailForm");
 		//return new ModelAndView("Final");
 	}
 	/*
